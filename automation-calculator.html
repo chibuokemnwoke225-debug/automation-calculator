@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Automation ROI Calculator</title>
+  <meta name="description" content="See exactly how many hours and dollars your business is losing to manual work — and what automation could save you.">
+
+  <!-- Social share meta tags (for LinkedIn/Facebook link previews) -->
+  <meta property="og:title" content="How many hours is your team burning? Free Calculator">
+  <meta property="og:description" content="Drag the sliders to see exactly what manual work costs your business — before and after automation.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #00E87A;
+      --green-dim: #00E87A20;
+      --green-mid: #00E87A40;
+      --red: #E84040;
+      --amber: #F0C040;
+      --bg: #0F0F0F;
+      --card: #161616;
+      --card2: #111E16;
+      --border: #2A2A2A;
+      --text: #F0F0F0;
+      --muted: #888888;
+      --faint: #555555;
+      --dimmer: #3A3A3A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2.5rem 1.25rem 4rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .inner { max-width: 620px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 2.25rem;
+    }
+
+    /* ── Burn banner ── */
+    .burn-banner {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .burn-label {
+      font-size: 11px;
+      color: var(--faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .burn-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(30px, 7vw, 48px);
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+      transition: color 0.35s ease;
+    }
+    .burn-num.amber { color: var(--amber); }
+    .burn-num.good  { color: var(--green); }
+
+    .burn-sub { font-size: 12px; color: var(--faint); margin-top: 5px; }
+
+    .burn-icon { font-size: 36px; color: #2A2A2A; flex-shrink: 0; }
+
+    /* ── Section cards ── */
+    .card {
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--faint);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Sliders ── */
+    .field { margin-bottom: 1.35rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 9px;
+      gap: 8px;
+    }
+
+    .field-label { font-size: 14px; color: #C0C0C0; }
+
+    .field-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      background: linear-gradient(to right, var(--green) var(--pct,0%), var(--border) var(--pct,0%));
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 2.5px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--green-mid);
+      margin-top: -7px;
+      cursor: pointer;
+    }
+
+    input[type=range]::-moz-range-track {
+      background: var(--border);
+      height: 4px; border-radius: 2px;
+    }
+    input[type=range]::-moz-range-progress {
+      background: var(--green);
+      height: 4px; border-radius: 2px;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 2.5px solid var(--bg);
+      cursor: pointer;
+    }
+
+    /* ── Results ── */
+    .results {
+      background: var(--card2);
+      border: 1px solid var(--green-mid);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+      animation: rise 0.4s cubic-bezier(.23,1,.32,1);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-heading {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--green);
+      margin-bottom: 1.25rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .metric {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+
+    .metric-label { font-size: 11px; color: var(--faint); margin-bottom: 4px; }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1.1;
+    }
+
+    .metric-sub { font-size: 11px; color: #3A3A3A; margin-top: 3px; }
+
+    /* ── Bar ── */
+    .bar-wrap { margin-bottom: 1.35rem; }
+    .bar-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--faint); margin-bottom: 7px; }
+    .bar-track { background: #1A1A1A; border-radius: 4px; height: 8px; overflow: hidden; }
+    .bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.65s cubic-bezier(.23,1,.32,1);
+    }
+
+    .divider { border: none; border-top: 0.5px solid #1E1E1E; margin: 1.35rem 0; }
+
+    /* ── CTA ── */
+    .cta-copy {
+      font-size: 13px;
+      color: var(--faint);
+      line-height: 1.6;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .cta-copy strong { color: #AAA; font-weight: 500; }
+
+    .form-row { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; }
+
+    .form-row input[type=text],
+    .form-row input[type=email] {
+      flex: 1;
+      background: var(--bg);
+      border: 0.5px solid #333;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      min-width: 0;
+      transition: border-color 0.2s;
+    }
+
+    .form-row input:focus { border-color: var(--green); }
+    .form-row input::placeholder { color: #3A3A3A; }
+
+    .name-row { display: flex; gap: 8px; max-width: 420px; margin: 0 auto 8px; }
+    .name-row input { flex: 1; background: var(--bg); border: 0.5px solid #333; border-radius: 8px; padding: 11px 14px; font-size: 14px; color: var(--text); font-family: 'Inter', sans-serif; outline: none; min-width: 0; transition: border-color 0.2s; }
+    .name-row input:focus { border-color: var(--green); }
+    .name-row input::placeholder { color: #3A3A3A; }
+
+    .submit-btn {
+      background: var(--green);
+      color: #0F0F0F;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .submit-btn:hover { background: #00FF88; }
+    .submit-btn:active { transform: scale(0.97); }
+
+    .submit-btn:disabled {
+      background: #1A1A1A;
+      color: #444;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-msg {
+      text-align: center;
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .success-box {
+      background: #0A1A0F;
+      border: 0.5px solid var(--green-mid);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      text-align: center;
+      display: none;
+      margin-top: 0.5rem;
+    }
+
+    .success-box .ti { font-size: 20px; color: var(--green); display: block; margin-bottom: 6px; }
+    .success-box p { font-size: 13px; color: #AAA; line-height: 1.5; }
+    .success-box strong { color: var(--green); }
+
+    /* ── Footer ── */
+    .footnote {
+      font-size: 11px;
+      color: #2E2E2E;
+      text-align: center;
+      margin-top: 2rem;
+      line-height: 1.6;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .social-links a {
+      font-size: 11px;
+      color: #3A3A3A;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .social-links a:hover { color: var(--green); }
+
+    @media (max-width: 480px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .form-row { flex-direction: column; }
+      .name-row { flex-direction: column; }
+      .submit-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<main class="inner" role="main">
+
+  <p class="eyebrow">Free calculator</p>
+  <h1>How many hours is<br>your team burning?</h1>
+  <p class="subtitle">Drag the sliders below to see exactly what manual work is costing your business — and what automation could give back.</p>
+
+  <!-- Live burn counter -->
+  <div class="burn-banner" aria-live="polite">
+    <div>
+      <p class="burn-label">Hours wasted per month</p>
+      <p class="burn-num" id="burnNum">0</p>
+      <p class="burn-sub" id="burnSub">Adjust the sliders below to get started</p>
+    </div>
+    <i class="ti ti-flame burn-icon" aria-hidden="true"></i>
+  </div>
+
+  <!-- Team inputs -->
+  <div class="card">
+    <p class="card-label">Your team</p>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="teamSize">Team size</label>
+        <span class="field-val" id="teamSizeVal">5 people</span>
+      </div>
+      <input type="range" id="teamSize" min="1" max="50" value="5" step="1" aria-label="Team size">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="hourlyRate">Avg. hourly cost ($)</label>
+        <span class="field-val" id="hourlyRateVal">$25/hr</span>
+      </div>
+      <input type="range" id="hourlyRate" min="10" max="150" value="25" step="5" aria-label="Average hourly cost">
+    </div>
+  </div>
+
+  <!-- Task inputs -->
+  <div class="card">
+    <p class="card-label">Manual tasks eating your time</p>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="dataEntry">Data entry &amp; reporting</label>
+        <span class="field-val" id="dataEntryVal">4 hrs/wk</span>
+      </div>
+      <input type="range" id="dataEntry" min="0" max="20" value="4" step="0.5" aria-label="Data entry hours per week">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="followUps">Follow-up emails &amp; reminders</label>
+        <span class="field-val" id="followUpsVal">3 hrs/wk</span>
+      </div>
+      <input type="range" id="followUps" min="0" max="15" value="3" step="0.5" aria-label="Follow-up email hours per week">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="invoicing">Invoicing &amp; payments</label>
+        <span class="field-val" id="invoicingVal">2 hrs/wk</span>
+      </div>
+      <input type="range" id="invoicing" min="0" max="10" value="2" step="0.5" aria-label="Invoicing hours per week">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="scheduling">Scheduling &amp; coordination</label>
+        <span class="field-val" id="schedulingVal">2 hrs/wk</span>
+      </div>
+      <input type="range" id="scheduling" min="0" max="10" value="2" step="0.5" aria-label="Scheduling hours per week">
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label class="field-label" for="socialPosting">Social / content posting</label>
+        <span class="field-val" id="socialPostingVal">1 hr/wk</span>
+      </div>
+      <input type="range" id="socialPosting" min="0" max="10" value="1" step="0.5" aria-label="Social posting hours per week">
+    </div>
+  </div>
+
+  <!-- Results + email capture -->
+  <div class="results" id="resultsCard">
+    <p class="results-heading">Your automation opportunity</p>
+
+    <div class="metrics">
+      <div class="metric">
+        <p class="metric-label">Hours lost / month</p>
+        <p class="metric-value" id="resHours">—</p>
+        <p class="metric-sub">across your team</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Cost per month</p>
+        <p class="metric-value" id="resCost">—</p>
+        <p class="metric-sub">in salary hours</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Hours saved / month</p>
+        <p class="metric-value" id="resSaved">—</p>
+        <p class="metric-sub">with automation (80%)</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Annual savings</p>
+        <p class="metric-value" id="resAnnual">—</p>
+        <p class="metric-sub">at current rates</p>
+      </div>
+    </div>
+
+    <div class="bar-wrap">
+      <div class="bar-row">
+        <span>Automation potential</span>
+        <span id="roiPct">—</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="roiFill"></div></div>
+    </div>
+
+    <hr class="divider">
+
+    <p class="cta-copy">
+      Get a <strong>free personalised automation roadmap</strong> — we'll show you exactly which tools to use and which tasks to automate first.
+    </p>
+
+    <div id="captureForm">
+      <div class="name-row">
+        <input type="text" id="firstName" placeholder="First name" autocomplete="given-name">
+        <input type="text" id="businessName" placeholder="Business name" autocomplete="organization">
+      </div>
+      <div class="form-row">
+        <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email">
+        <button class="submit-btn" id="submitBtn" onclick="submitLead()">Get my roadmap</button>
+      </div>
+      <p class="error-msg" id="errorMsg">Please enter a valid email address.</p>
+    </div>
+
+    <div class="success-box" id="successBox">
+      <i class="ti ti-circle-check" aria-hidden="true"></i>
+      <p>You're in! <strong>Check your inbox</strong> — your personalised automation roadmap is on its way.<br>
+      <span style="color:#555; font-size:12px; margin-top:4px; display:block;">We'll be in touch within 24 hours.</span></p>
+    </div>
+  </div>
+
+  <p class="footnote">
+    Savings estimate assumes 80% task reduction via automation. Actual results vary by process and tool.<br>
+    No spam. Unsubscribe any time.
+  </p>
+
+  <!-- Replace these hrefs with your real profile links -->
+  <nav class="social-links" aria-label="Social media links">
+    <a href="https://instagram.com/YOURUSERNAME" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://threads.net/@YOURUSERNAME" target="_blank" rel="noopener">Threads</a>
+    <a href="https://facebook.com/YOURPAGE" target="_blank" rel="noopener">Facebook</a>
+    <a href="https://linkedin.com/in/YOURPROFILE" target="_blank" rel="noopener">LinkedIn</a>
+  </nav>
+
+</main>
+
+<script>
+  // ─────────────────────────────────────────────
+  // CONFIGURATION — fill these in before going live
+  // ─────────────────────────────────────────────
+  const N8N_WEBHOOK_URL = 'https://YOUR-N8N-INSTANCE.com/webhook/YOUR-WEBHOOK-ID';
+  // ─────────────────────────────────────────────
+
+  const sliders = {
+    teamSize:     { fmt: v => v + (v==1?' person':' people') },
+    hourlyRate:   { fmt: v => '$' + v + '/hr' },
+    dataEntry:    { fmt: v => fmtHrs(v) },
+    followUps:    { fmt: v => fmtHrs(v) },
+    invoicing:    { fmt: v => fmtHrs(v) },
+    scheduling:   { fmt: v => fmtHrs(v) },
+    socialPosting:{ fmt: v => fmtHrs(v) },
+  };
+
+  function fmtHrs(v) {
+    return parseFloat(v) === 1 ? '1 hr/wk' : parseFloat(v) + ' hrs/wk';
+  }
+
+  function fmtUSD(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function setTrack(el) {
+    const min = +el.min, max = +el.max, val = +el.value;
+    const pct = ((val - min) / (max - min) * 100).toFixed(1) + '%';
+    el.style.setProperty('--pct', pct);
+  }
+
+  // Wire up sliders
+  Object.keys(sliders).forEach(id => {
+    const el  = document.getElementById(id);
+    const out = document.getElementById(id + 'Val');
+    if (!el || !out) return;
+    setTrack(el);
+    out.textContent = sliders[id].fmt(el.value);
+    el.addEventListener('input', () => {
+      setTrack(el);
+      out.textContent = sliders[id].fmt(el.value);
+      recalc();
+    });
+  });
+
+  // Store calculated state globally so we can send it with the lead
+  let calcState = {};
+
+  function recalc() {
+    const team = +document.getElementById('teamSize').value;
+    const rate = +document.getElementById('hourlyRate').value;
+
+    const weeklyHrsPerPerson =
+      +document.getElementById('dataEntry').value +
+      +document.getElementById('followUps').value +
+      +document.getElementById('invoicing').value +
+      +document.getElementById('scheduling').value +
+      +document.getElementById('socialPosting').value;
+
+    const totalMonthlyHrs  = Math.round(weeklyHrsPerPerson * 4.33 * team);
+    const monthlyCost      = Math.round(totalMonthlyHrs * rate);
+    const hrsSaved         = Math.round(totalMonthlyHrs * 0.8);
+    const annualSavings    = Math.round(monthlyCost * 0.8 * 12);
+    const potential        = Math.min(95, Math.round((hrsSaved / (totalMonthlyHrs || 1)) * 100));
+
+    // Cache for webhook payload
+    calcState = { team, rate, weeklyHrsPerPerson, totalMonthlyHrs, monthlyCost, hrsSaved, annualSavings, potential };
+
+    // Update burn banner
+    const burnEl = document.getElementById('burnNum');
+    burnEl.textContent = totalMonthlyHrs;
+    burnEl.className = 'burn-num' +
+      (totalMonthlyHrs > 80 ? '' : totalMonthlyHrs > 30 ? ' amber' : ' good');
+
+    document.getElementById('burnSub').textContent =
+      totalMonthlyHrs === 0  ? 'Adjust the sliders above to get started' :
+      totalMonthlyHrs > 80   ? "That's serious — automation can fix this" :
+      totalMonthlyHrs > 30   ? 'Significant opportunity here' :
+                               'Small gains add up over time';
+
+    // Show / hide results
+    const card = document.getElementById('resultsCard');
+    if (totalMonthlyHrs > 0) {
+      card.classList.add('show');
+      document.getElementById('resHours').textContent  = totalMonthlyHrs + ' hrs';
+      document.getElementById('resCost').textContent   = fmtUSD(monthlyCost);
+      document.getElementById('resSaved').textContent  = hrsSaved + ' hrs';
+      document.getElementById('resAnnual').textContent = fmtUSD(annualSavings);
+      document.getElementById('roiPct').textContent    = potential + '%';
+      document.getElementById('roiFill').style.width   = potential + '%';
+    } else {
+      card.classList.remove('show');
+    }
+  }
+
+  recalc();
+
+  // ── Lead submission → n8n webhook ──
+  async function submitLead() {
+    const firstName    = document.getElementById('firstName').value.trim();
+    const businessName = document.getElementById('businessName').value.trim();
+    const email        = document.getElementById('emailInput').value.trim();
+    const errorEl      = document.getElementById('errorMsg');
+    const btn          = document.getElementById('submitBtn');
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errorEl.style.display = 'block';
+      return;
+    }
+    errorEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const payload = {
+      // Lead info
+      firstName,
+      businessName,
+      email,
+      submittedAt: new Date().toISOString(),
+
+      // Calculator results (for personalised email & sheet)
+      teamSize:        calcState.team,
+      hourlyRate:      calcState.rate,
+      weeklyHoursLost: calcState.weeklyHrsPerPerson,
+      monthlyHoursLost:calcState.totalMonthlyHrs,
+      monthlyCostUSD:  calcState.monthlyCost,
+      hoursSavedPerMonth: calcState.hrsSaved,
+      annualSavingsUSD:calcState.annualSavings,
+      automationPotential: calcState.potential + '%',
+
+      // Source info
+      source: 'automation-calculator',
+      referrer: document.referrer || 'direct',
+    };
+
+    try {
+      await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      document.getElementById('captureForm').style.display = 'none';
+      document.getElementById('successBox').style.display  = 'block';
+    } catch (err) {
+      // Fail gracefully — still show success to user
+      console.error('Webhook error:', err);
+      document.getElementById('captureForm').style.display = 'none';
+      document.getElementById('successBox').style.display  = 'block';
+    }
+  }
+
+  // Allow Enter key on email field
+  document.getElementById('emailInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitLead();
+  });
+</script>
+</body>
+</html>
