@@ -176,6 +176,7 @@
       border-radius: 2px;
       outline: none;
       cursor: pointer;
+      touch-action: pan-y;
     }
 
     input[type="range"]::-webkit-slider-thumb {
@@ -826,36 +827,6 @@
     document.getElementById('successMsg').classList.add('visible');
   }
 
-  // --- Prevent sliders from hijacking vertical scroll on mobile ---
-  document.querySelectorAll('input[type="range"]').forEach(slider => {
-    let startX = 0;
-    let startY = 0;
-    let intentDecided = false;
-    let isHorizontal = false;
-
-    slider.addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      intentDecided = false;
-      isHorizontal = false;
-    }, { passive: true });
-
-    slider.addEventListener('touchmove', e => {
-      const dx = Math.abs(e.touches[0].clientX - startX);
-      const dy = Math.abs(e.touches[0].clientY - startY);
-
-      if (!intentDecided) {
-        if (dx < 5 && dy < 5) return;
-        isHorizontal = dx > dy;
-        intentDecided = true;
-      }
-
-      if (!isHorizontal) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, { passive: false });
-  });
 
 </script>
 </body>
