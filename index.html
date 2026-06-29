@@ -167,41 +167,57 @@
       text-align: center;
     }
 
+    /* Hide native range inputs — replaced by custom sliders */
     input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
+      display: none;
+    }
+
+    /* Custom slider */
+    .custom-slider {
+      position: relative;
       width: 100%;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .custom-slider-track {
+      position: absolute;
+      left: 0;
+      right: 0;
       height: 4px;
       background: var(--border-light);
       border-radius: 2px;
-      outline: none;
-      cursor: pointer;
-      touch-action: pan-y;
     }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
+    .custom-slider-fill {
+      position: absolute;
+      left: 0;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+      pointer-events: none;
+    }
+
+    .custom-slider-thumb {
+      position: absolute;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--accent);
-      cursor: pointer;
       box-shadow: 0 0 0 3px var(--accent-dim);
+      cursor: grab;
+      transform: translateX(-50%);
       transition: box-shadow 0.2s;
+      touch-action: none;
+      z-index: 2;
     }
 
-    input[type="range"]::-webkit-slider-thumb:hover {
+    .custom-slider-thumb:active {
+      cursor: grabbing;
       box-shadow: 0 0 0 6px var(--accent-glow);
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      border: none;
     }
 
     /* FRUSTRATION SECTION */
@@ -827,6 +843,97 @@
     document.getElementById('successMsg').classList.add('visible');
   }
 
+
+  // --- Custom sliders: only respond when thumb is dragged ---
+  function initCustomSlider(nativeInput) {
+    const min = parseFloat(nativeInput.min);
+    const max = parseFloat(nativeInput.max);
+    const step = parseFloat(nativeInput.step) || 1;
+
+    // Build the custom slider DOM
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-slider';
+
+    const track = document.createElement('div');
+    track.className = 'custom-slider-track';
+
+    const fill = document.createElement('div');
+    fill.className = 'custom-slider-fill';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'custom-slider-thumb';
+
+    wrapper.appendChild(track);
+    wrapper.appendChild(fill);
+    wrapper.appendChild(thumb);
+
+    // Insert after the native input
+    nativeInput.parentNode.insertBefore(wrapper, nativeInput.nextSibling);
+
+    function getPct(val) {
+      return (val - min) / (max - min);
+    }
+
+    function snap(raw) {
+      return Math.round((raw - min) / step) * step + min;
+    }
+
+    function clamp(v) {
+      return Math.min(max, Math.max(min, v));
+    }
+
+    function updateUI(val) {
+      const pct = getPct(val) * 100;
+      thumb.style.left = pct + '%';
+      fill.style.width = pct + '%';
+    }
+
+    function valueFromX(clientX) {
+      const rect = wrapper.getBoundingClientRect();
+      const ratio = (clientX - rect.left) / rect.width;
+      return clamp(snap(min + ratio * (max - min)));
+    }
+
+    // Init position
+    updateUI(parseFloat(nativeInput.value));
+
+    let dragging = false;
+
+    // Mouse events — only on thumb
+    thumb.addEventListener('mousedown', e => {
+      dragging = true;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const val = valueFromX(e.clientX);
+      nativeInput.value = val;
+      updateUI(val);
+      nativeInput.dispatchEvent(new Event('input'));
+    });
+
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    // Touch events — only on thumb
+    thumb.addEventListener('touchstart', e => {
+      dragging = true;
+      e.stopPropagation();
+    }, { passive: true });
+
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const val = valueFromX(e.touches[0].clientX);
+      nativeInput.value = val;
+      updateUI(val);
+      nativeInput.dispatchEvent(new Event('input'));
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => { dragging = false; }, { passive: true });
+  }
+
+  // Init all sliders
+  document.querySelectorAll('input[type="range"]').forEach(initCustomSlider);
 
 </script>
 </body>
